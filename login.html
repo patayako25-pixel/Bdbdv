@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Vijana Mental Hub</title>
+<meta name="description" content="Sign in to your Vijana Mental Hub account.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .auth-wrap{ min-height: 78vh; display:flex; align-items:center; justify-content:center; padding: 48px 24px; }
+  .auth-card{ background: var(--white); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 40px; max-width: 420px; width: 100%; box-shadow: 0 14px 34px rgba(15,82,87,.08); }
+  .auth-card h1{ font-size: 1.8rem; margin-bottom: .2em; }
+  .auth-card p.sub{ margin-bottom: 1.6em; }
+  .auth-error{ display:none; background:#FBEAEC; border:1px solid var(--coral); color:#8f2f45; padding:12px 14px; border-radius:10px; font-weight:600; font-size:.9rem; margin-bottom:18px; }
+  .auth-error.visible{ display:block; }
+  .auth-submit{ width:100%; margin-top:4px; }
+  .auth-foot{ margin-top:22px; font-size:.92rem; color:var(--ink-soft); text-align:center; }
+  .auth-foot a{ color:var(--teal); font-weight:700; }
+  .auth-logo{ display:flex; align-items:center; justify-content:center; gap:10px; padding: 22px 0 0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="login.html" class="logo">
+      <img src="Untitled%20design%20%285%29.png" alt="Vijana Mental Hub" class="logo-image">
+      <span>Vijana Mental Hub</span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in with your username and password to enter Vijana Mental Hub.</p>
+
+      <div class="auth-error" id="auth-error"></div>
+
+      <form id="login-form" class="form-grid" novalidate>
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" autocomplete="username" required>
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary auth-submit">Sign In</button>
+      </form>
+
+      <p class="auth-foot">New here? <a href="signup.html">Create an account</a></p>
+    </div>
+  </div>
+</main>
+
+<script src="auth.js"></script>
+<script>
+  (function () {
+    // Pages a user may be sent back to after signing in.
+    var allowed = ['index.html', 'about.html', 'contact.html', 'resources.html', 'events.html', 'blog.html', 'get-involved.html'];
+    function safeNext(next) {
+      return next && allowed.indexOf(next) !== -1 ? next : 'index.html';
+    }
+
+    // Already signed in? Skip straight past the login form.
+    if (VMHAuth.isLoggedIn()) {
+      var p = new URLSearchParams(window.location.search);
+      window.location.replace(safeNext(p.get('next')));
+      return;
+    }
+
+    var errorEl = document.getElementById('auth-error');
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('visible');
+    }
+
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      var result = VMHAuth.login(username, password);
+
+      if (!result.ok) {
+        showError(result.error);
+        return;
+      }
+      errorEl.classList.remove('visible');
+      var params = new URLSearchParams(window.location.search);
+      window.location.href = safeNext(params.get('next'));
+    });
+  })();
+</script>
+</body>
+</html>
